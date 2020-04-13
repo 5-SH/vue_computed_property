@@ -1,13 +1,17 @@
 const { DependencyTracker, trace } = require('./dependency');
 
 module.exports = {
-  reactive: function (obj, key, v) {
+  reactive: (obj, key, v) => {
+    // Person 의 property 에 종속성을 가지는 computed 함수 리스트
     let deps = [];
     Object.defineProperty(obj, key, {
       get: () => {
-        // Check if there is a target and it hasn't been linked
-        // as a dependency already
-        if (DependencyTracker.target && deps.indexOf(DependencyTracker.target) == -1) {
+        /**
+         * Dep 에 종속성 등록이 필요한 함수가 있고
+         * Person 에 종속성 등록이 되지 않앗으면 등록을 진행한다.
+         **/
+
+        if (DependencyTracker.target && deps.indexOf(DependencyTracker.target) === -1) {
           trace('Adding target to deps for ' + key);
           deps.push(DependencyTracker.target);
         }
@@ -20,7 +24,7 @@ module.exports = {
         v = nv;
 
         for (const dep of deps) {
-          // call the target's callback
+          // 종속성이 등록된 computed 함수를 호출한다.
           dep();
         }
       },
